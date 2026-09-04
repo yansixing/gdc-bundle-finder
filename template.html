@@ -1,7 +1,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>GDC Bundle Finder</title>
-<meta name="description" content="Search every file in the Sonniss #GameAudioGDC free bundles (2015–2024) and see exactly which zip part to download. 搜索 Sonniss GDC 免费音效包里的每一个文件，直接看到该下哪一卷。">
+<meta name="description" content="Search every file in the Sonniss #GameAudioGDC free bundles (2015–2026) and see exactly which zip part to download. 搜索 Sonniss GDC 免费音效包里的每一个文件，直接看到该下哪一卷。">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
@@ -204,7 +204,7 @@ mark{background:var(--mark);color:var(--mark-ink);border-radius:2px;padding:0 1p
 (function(){
   const I18N = {
     en: {
-      lede: 'Every file in the Sonniss #GameAudioGDC free bundles, 2015 to 2024, indexed by which zip it lives in. Search, then download only the parts you need.',
+      lede: 'Every file in the Sonniss #GameAudioGDC free bundles, 2015 to 2026, indexed by which zip it lives in. Search, then download only the parts you need.',
       st_files:'audio files', st_libs:'libraries', st_zips:'zip parts', st_gb:'GB total',
       placeholder:'creak wood, cave drone, footsteps gravel, -car …',
       hint:'Words are ANDed · <code>-word</code> excludes · <code>"exact phrase"</code>',
@@ -219,11 +219,11 @@ mark{background:var(--mark);color:var(--mark-ink);border-radius:2px;padding:0 1p
       th:['Bundle','Parts','Size','Libraries','Files','A few of the libraries inside'],
       tips:[['Search by what you hear','Names are descriptive: try {creak wood}, {drip cave}, {footsteps gravel}.'],['Narrow with a minus','{drone -aircraft -quadcopter} drops the flying kind.'],['Browse a year','Click a year on the left to see every part and what it holds, no search needed.']],
       direct:'Direct download from Sonniss', direct_gb:gb=>'Direct download, '+gb+' GB',
-      foot1:'<strong>No audio is hosted here.</strong> This page lists file names only. Download the bundles from <a href="https://sonniss.com/gameaudiogdc/" target="_blank" rel="noopener">sonniss.com/gameaudiogdc</a>; each is free and royalty-free under the <a href="https://sonniss.com/gdc-bundle-license/" target="_blank" rel="noopener">#GameAudioGDC license</a>, which forbids re-uploading the sounds themselves.',
-      foot2:'The index was built by reading only the central directory at the tail of each zip (HTTP range requests), so it reflects the archives exactly as published. Parts are split roughly alphabetically by "Supplier - Library" folder. 2021, 2022 and 2023 ship together as one 14-part bundle. Source on <a href="https://github.com/yansixing/gdc-bundle-finder" target="_blank" rel="noopener">GitHub</a>.'
+      foot1:'<strong>No audio is hosted here.</strong> This page lists file names only. Download the 2015–2024 bundles from <a href="https://sonniss.com/gameaudiogdc/" target="_blank" rel="noopener">sonniss.com/gameaudiogdc</a> and the 2026 bundle from <a href="https://gdc.sonniss.com/" target="_blank" rel="noopener">gdc.sonniss.com</a>; each is free and royalty-free under the <a href="https://sonniss.com/gdc-bundle-license/" target="_blank" rel="noopener">#GameAudioGDC license</a>, which forbids re-uploading the sounds themselves.',
+      foot2:'The index was built by reading only the central directory at the tail of each zip (HTTP range requests), so it reflects the archives exactly as published. Parts are split roughly alphabetically by "Supplier - Library" folder. 2021, 2022 and 2023 ship together as one 14-part bundle; there was no 2025 bundle. Source on <a href="https://github.com/yansixing/gdc-bundle-finder" target="_blank" rel="noopener">GitHub</a>.'
     },
     zh: {
-      lede: 'Sonniss 每年 GDC 免费放出的音效包，2015 到 2024 年全部 73 卷 zip 里的每一个文件都在这里，标好了它在哪一卷。先搜，再只下你需要的那几卷。',
+      lede: 'Sonniss 每年 GDC 免费放出的音效包，2015 到 2026 年全部 78 卷 zip 里的每一个文件都在这里，标好了它在哪一卷。先搜，再只下你需要的那几卷。',
       st_files:'音频文件', st_libs:'音效库', st_zips:'zip 分卷', st_gb:'GB 合计',
       placeholder:'creak wood、cave drone、footsteps gravel、-car …（文件名都是英文）',
       hint:'多个词是“且” · <code>-词</code> 排除 · <code>"精确短语"</code>',
@@ -238,8 +238,8 @@ mark{background:var(--mark);color:var(--mark-ink);border-radius:2px;padding:0 1p
       th:['年份','分卷数','大小','库','文件','里面有哪些库（节选）'],
       tips:[['按你想听到的声音搜','文件名都是描述性的英文，试试 {creak wood}、{drip cave}、{footsteps gravel}。'],['用减号排除','{drone -aircraft -quadcopter} 能把飞行器那类 drone 去掉。'],['直接翻某一年','点左边的年份，不用搜也能看到每一卷装了什么。']],
       direct:'从 Sonniss 直接下载', direct_gb:gb=>'直接下载，'+gb+' GB',
-      foot1:'<strong>本站不存放任何音频。</strong>这里只有文件名。音效请到 <a href="https://sonniss.com/gameaudiogdc/" target="_blank" rel="noopener">sonniss.com/gameaudiogdc</a> 下载，全部免费、免版税，遵循 <a href="https://sonniss.com/gdc-bundle-license/" target="_blank" rel="noopener">#GameAudioGDC 协议</a>；协议禁止把音效本身转载到别处。',
-      foot2:'索引是用 HTTP Range 请求只读每个 zip 尾部的中央目录建出来的，所以和官方发布的压缩包完全一致。分卷大致按“供应商 - 库名”的字母顺序切分。2021、2022、2023 三年合并成一个 14 卷的包。源码在 <a href="https://github.com/yansixing/gdc-bundle-finder" target="_blank" rel="noopener">GitHub</a>。'
+      foot1:'<strong>本站不存放任何音频。</strong>这里只有文件名。2015 到 2024 年的包请到 <a href="https://sonniss.com/gameaudiogdc/" target="_blank" rel="noopener">sonniss.com/gameaudiogdc</a> 下载，2026 年的在 <a href="https://gdc.sonniss.com/" target="_blank" rel="noopener">gdc.sonniss.com</a>，全部免费、免版税，遵循 <a href="https://sonniss.com/gdc-bundle-license/" target="_blank" rel="noopener">#GameAudioGDC 协议</a>；协议禁止把音效本身转载到别处。',
+      foot2:'索引是用 HTTP Range 请求只读每个 zip 尾部的中央目录建出来的，所以和官方发布的压缩包完全一致。分卷大致按“供应商 - 库名”的字母顺序切分。2021、2022、2023 三年合并成一个 14 卷的包；2025 年没有发包。源码在 <a href="https://github.com/yansixing/gdc-bundle-finder" target="_blank" rel="noopener">GitHub</a>。'
     }
   };
   let L = 'en';

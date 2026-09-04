@@ -12,8 +12,9 @@ URL={
  '2019':('https://downloads.sonniss.com/Sonniss.com%20-%20GDC%202019%20-%20Game%20Audio%20Bundle%20Part%20','of8.zip'),
  '2020':('https://downloads.sonniss.com/Sonniss.com%20-%20GDC%202020%20-%20Game%20Audio%20Bundle%20Part','of14.zip'),
  '2021-2023':('https://downloads.sonniss.com/Sonniss.com-GDC2023-GameAudioBundle','of14.zip'),
- '2024':('https://downloads.sonniss.com/Sonniss.com-GDC2024-GameAudioBundle','of9.zip')}
-order=['2015','2016','2017','2018','2019','2020','2021-2023','2024']
+ '2024':('https://downloads.sonniss.com/Sonniss.com-GDC2024-GameAudioBundle','of9.zip'),
+ '2026':('https://downloads.sonniss.com/Sonniss.com-GDC2026-GameAudioBundle','of5.zip')}
+order=['2015','2016','2017','2018','2019','2020','2021-2023','2024','2026']
 zips={y:{} for y in order};libs={};LIBS=[];FILES=[]
 for k,v in data.items():
     y,p=k.split('/');y=YEARMAP.get(y,y);p=int(p)
