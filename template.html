@@ -1,7 +1,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>GDC Bundle Finder</title>
-<meta name="description" content="Find any sound in ten years of Sonniss’s free GDC bundles, listen first, and download only the part you need. 十年 GDC 免费音效包全文件检索，先听再下。">
+<meta name="description" content="Index of every file in the Sonniss #GameAudioGDC free sound bundles, 2015–2026, with per-file listening. Sonniss GDC 免费音效包全文件索引，可单文件试听。">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
@@ -42,9 +42,9 @@ button,input{font:inherit;color:inherit}
 /* header */
 .top{border-bottom:1px solid var(--line);background:var(--surface)}
 .top .wrap{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:end;padding-top:22px;padding-bottom:18px}
-.brand{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;grid-column:1 / -1}
+.brand{display:flex;justify-content:space-between;align-items:center;gap:16px;grid-column:1 / -1}
 .brand .ctl{display:flex;gap:8px;align-items:center;flex:none;flex-wrap:wrap;justify-content:flex-end}
-h1{font-family:var(--font-display);font-weight:800;font-size:30px;line-height:1.05;letter-spacing:-.01em;margin:0 0 6px;text-wrap:balance}
+h1{font-family:var(--font-display);font-weight:800;font-size:30px;line-height:1.05;letter-spacing:-.01em;margin:0;text-wrap:balance}
 h1 span{color:var(--accent)}
 .lede{margin:0;color:var(--ink-2);max-width:62ch}
 .lang{display:inline-flex;border:1px solid var(--line);border-radius:5px;overflow:hidden}
@@ -204,7 +204,6 @@ mark{background:var(--mark);color:var(--mark-ink);border-radius:2px;padding:0 1p
   <div class="brand">
     <div>
       <h1>GDC Bundle <span>Finder</span></h1>
-      <p class="lede" data-i18n="lede"></p>
     </div>
     <div class="ctl">
       <button type="button" class="chip" id="pvchip"><i></i><span></span></button>
@@ -288,7 +287,6 @@ mark{background:var(--mark);color:var(--mark-ink);border-radius:2px;padding:0 1p
 
   const I18N = {
     en: {
-      lede: 'Every sound from ten years of Sonniss’s free GDC bundles, in one place. Find it, listen first, then download only the part that has it.',
       st_files:'sounds', st_libs:'libraries', st_zips:'zip parts', st_gb:'GB in total',
       placeholder:'Try: creak wood · cave drone · footsteps gravel',
       hint:'All words must match · <code>-word</code> excludes · <code>"exact phrase"</code>',
@@ -317,7 +315,6 @@ mark{background:var(--mark);color:var(--mark-ink);border-radius:2px;padding:0 1p
       foot2:'Covers every bundle from 2015 to 2026. 2021–2023 were released together; there was no 2025 bundle. An independent community project, not affiliated with Sonniss. <a href="https://github.com/yansixing/gdc-bundle-finder" target="_blank" rel="noopener">Source on GitHub</a>.'
     },
     zh: {
-      lede: '十年 Sonniss GDC 免费音效包里的每一个声音，都在这里。搜到、先听、再只下载装着它的那一卷。',
       st_files:'个声音', st_libs:'个音效库', st_zips:'个 zip 分卷', st_gb:'GB 合计',
       placeholder:'试试：creak wood · cave drone · footsteps gravel',
       hint:'词都要出现 · <code>-词</code> 排除 · <code>"精确短语"</code>',
