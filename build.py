@@ -19,7 +19,7 @@ zips={y:{} for y in order};libs={};LIBS=[];FILES=[]
 for k,v in data.items():
     y,p=k.split('/');y=YEARMAP.get(y,y);p=int(p)
     zips[y][p]=[v['gb'],URL[y][0]+str(p)+URL[y][1]]
-    for nm,sz in v['files']:
+    for nm,sz,meth,csz,off in v['files']:
         parts=nm.split('/')
         if parts and parts[0].startswith('Sonniss.com'): parts=parts[1:]
         if len(parts)<2 or '__MACOSX' in parts or parts[-1].startswith('._'): continue
@@ -27,11 +27,11 @@ for k,v in data.items():
         if not re.search(r'\.(wav|flac|aif|aiff|mp3|ogg)$',fn,re.I): continue
         key=(y,p,folder)
         if key not in libs: libs[key]=len(LIBS);LIBS.append([y,p,folder])
-        FILES.append([libs[key],fn,round(sz/2**20,1)])
+        FILES.append([libs[key],fn,round(sz/2**20,1),meth,csz,off])
 idx=sorted(range(len(LIBS)),key=lambda i:(order.index(LIBS[i][0]),LIBS[i][1],LIBS[i][2].lower()))
 remap={old:new for new,old in enumerate(idx)}
 LIBS=[LIBS[i] for i in idx]
-FILES=sorted(([remap[f[0]],f[1],f[2]] for f in FILES),key=lambda f:(f[0],f[1].lower()))
+FILES=sorted(([remap[f[0]]]+f[1:] for f in FILES),key=lambda f:(f[0],f[1].lower()))
 zips={y:{p:zips[y][p] for p in sorted(zips[y])} for y in order}
 SAMPLES={}
 for y in order:

@@ -1,14 +1,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>GDC Bundle Finder</title>
-<meta name="description" content="Search every file in the Sonniss #GameAudioGDC free bundles (2015–2026) and see exactly which zip part to download. 搜索 Sonniss GDC 免费音效包里的每一个文件，直接看到该下哪一卷。">
+<meta name="description" content="Search every file in the Sonniss #GameAudioGDC free bundles (2015–2026), preview single files, and see exactly which zip part to download. 搜索 Sonniss GDC 免费音效包里的每一个文件，单文件试听，直接看到该下哪一卷。">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
 :root{
   --bg:#EEF0F3; --surface:#FFFFFF; --surface-2:#F6F7F9; --ink:#161B22; --ink-2:#4C5561; --muted:#7A8391;
   --line:#D7DCE3; --line-2:#E6EAEF; --accent:#C2451E; --accent-ink:#FFFFFF; --accent-soft:#FBE9E2;
-  --focus:#2E6BD6; --mark:#FFE9A8; --mark-ink:#3A2A00;
+  --ok:#2E7D4F; --ok-soft:#E3F3E9;
+  --focus:#2E6BD6; --mark:#FFE9A8; --mark-ink:#3A2A00; --shadow:rgba(20,26,34,.12);
   --font-display:"Bricolage Grotesque","PingFang SC","Hiragino Sans GB","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;
   --font-body:"IBM Plex Sans","PingFang SC","Hiragino Sans GB","Microsoft YaHei","Segoe UI",Helvetica,Arial,sans-serif;
   --font-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
@@ -17,17 +18,20 @@
   :root:not([data-theme="light"]){
     --bg:#12161C; --surface:#1A2029; --surface-2:#20272F; --ink:#E9ECF0; --ink-2:#B4BCC6; --muted:#7F8A97;
     --line:#2C3540; --line-2:#242C36; --accent:#F07A52; --accent-ink:#1A0E08; --accent-soft:#3A2119;
-    --focus:#6FA1FF; --mark:#5A4A12; --mark-ink:#FFF1C2;
+    --ok:#5FC98A; --ok-soft:#1D3527;
+    --focus:#6FA1FF; --mark:#5A4A12; --mark-ink:#FFF1C2; --shadow:rgba(0,0,0,.5);
   }
 }
 :root[data-theme="dark"]{
   --bg:#12161C; --surface:#1A2029; --surface-2:#20272F; --ink:#E9ECF0; --ink-2:#B4BCC6; --muted:#7F8A97;
   --line:#2C3540; --line-2:#242C36; --accent:#F07A52; --accent-ink:#1A0E08; --accent-soft:#3A2119;
-  --focus:#6FA1FF; --mark:#5A4A12; --mark-ink:#FFF1C2;
+  --ok:#5FC98A; --ok-soft:#1D3527;
+  --focus:#6FA1FF; --mark:#5A4A12; --mark-ink:#FFF1C2; --shadow:rgba(0,0,0,.5);
 }
 *{box-sizing:border-box}
 html{color-scheme:light dark}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+body.has-player{padding-bottom:84px}
 a{color:inherit}
 :focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 button,input{font:inherit;color:inherit}
@@ -38,13 +42,19 @@ button,input{font:inherit;color:inherit}
 .top{border-bottom:1px solid var(--line);background:var(--surface)}
 .top .wrap{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:end;padding-top:22px;padding-bottom:18px}
 .brand{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;grid-column:1 / -1}
+.brand .ctl{display:flex;gap:8px;align-items:center;flex:none;flex-wrap:wrap;justify-content:flex-end}
 h1{font-family:var(--font-display);font-weight:800;font-size:30px;line-height:1.05;letter-spacing:-.01em;margin:0 0 6px;text-wrap:balance}
 h1 span{color:var(--accent)}
 .lede{margin:0;color:var(--ink-2);max-width:62ch}
-.lang{display:inline-flex;border:1px solid var(--line);border-radius:5px;overflow:hidden;flex:none}
+.lang{display:inline-flex;border:1px solid var(--line);border-radius:5px;overflow:hidden}
 .lang button{border:0;background:var(--surface);padding:5px 10px;cursor:pointer;font-size:12.5px;color:var(--ink-2)}
 .lang button+button{border-left:1px solid var(--line)}
 .lang button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:5px;padding:5px 10px;background:var(--surface);cursor:pointer;font-size:12.5px;color:var(--ink-2)}
+.chip:hover{border-color:var(--ink-2)}
+.chip i{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+.chip.on{border-color:var(--ok);color:var(--ok);background:var(--ok-soft);cursor:default}
+.chip.on i{background:var(--ok)}
 .stats{display:flex;gap:22px;font-variant-numeric:tabular-nums;color:var(--ink-2);white-space:nowrap}
 .stats b{display:block;font-family:var(--font-display);font-weight:700;font-size:22px;color:var(--ink);line-height:1.1}
 .stats small{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
@@ -112,11 +122,19 @@ h1 span{color:var(--accent)}
 .lib .name .sup{color:var(--muted);font-weight:400}
 .lib .count{color:var(--muted);font-size:12px;white-space:nowrap;font-variant-numeric:tabular-nums}
 .files{list-style:none;margin:0;padding:4px 0}
-.files li{display:grid;grid-template-columns:1fr auto;gap:14px;padding:4px 14px;font-family:var(--font-mono);font-size:12.5px;line-height:1.45;overflow-wrap:anywhere}
+.files li{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:3px 14px 3px 10px;font-family:var(--font-mono);font-size:12.5px;line-height:1.45;overflow-wrap:anywhere}
 .files li:nth-child(even){background:color-mix(in srgb,var(--surface-2) 55%,transparent)}
 .files .sz{color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
-.files .more{font-family:var(--font-body);color:var(--ink-2)}
+.files .more{font-family:var(--font-body);color:var(--ink-2);grid-template-columns:1fr auto;padding-left:14px}
 .files .more button{border:0;background:transparent;color:var(--accent);cursor:pointer;font-weight:600;padding:0}
+.play{width:26px;height:26px;border-radius:50%;border:1px solid var(--line);background:var(--surface);cursor:pointer;display:grid;place-items:center;color:var(--ink-2);padding:0;flex:none}
+.play:hover{border-color:var(--accent);color:var(--accent)}
+.play svg{width:11px;height:11px;fill:currentColor;display:block}
+.play[data-state="loading"]{border-color:var(--accent);color:var(--accent)}
+.play[data-state="loading"] svg{animation:spin 1s linear infinite}
+.play[data-state="playing"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.play[data-state="loading"] svg{animation:none}}
 mark{background:var(--mark);color:var(--mark-ink);border-radius:2px;padding:0 1px}
 .showmore{display:block;width:100%;margin-top:6px;border:1px dashed var(--line);background:transparent;border-radius:6px;padding:10px;cursor:pointer;color:var(--ink-2)}
 .showmore:hover{background:var(--surface)}
@@ -141,6 +159,37 @@ mark{background:var(--mark);color:var(--mark-ink);border-radius:2px;padding:0 1p
 .tips b{color:var(--ink);display:block;margin-bottom:2px}
 .tips button{border:0;background:transparent;padding:0;font:inherit;color:var(--accent);cursor:pointer;font-family:var(--font-mono);font-size:12.5px}
 .tips button:hover{text-decoration:underline}
+.tips button.txt{font-family:var(--font-body);font-weight:600}
+
+/* player bar */
+.player{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -6px 20px var(--shadow)}
+.player .wrap{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;padding:10px 20px}
+.player .big{width:40px;height:40px;border-radius:50%;border:0;background:var(--accent);color:var(--accent-ink);cursor:pointer;display:grid;place-items:center;padding:0}
+.player .big svg{width:15px;height:15px;fill:currentColor;display:block}
+.player .big[data-state="loading"] svg{animation:spin 1s linear infinite}
+.player .info{min-width:0}
+.player .name{font-family:var(--font-mono);font-size:12.5px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.player .sub{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.player .bar{height:6px;background:var(--line-2);border-radius:3px;cursor:pointer;position:relative;margin-top:6px}
+.player .bar b{position:absolute;left:0;top:0;bottom:0;background:var(--line);border-radius:3px;width:0}
+.player .bar i{position:absolute;left:0;top:0;bottom:0;background:var(--accent);border-radius:3px;width:0}
+.player .right{display:flex;align-items:center;gap:12px}
+.player .time{font-variant-numeric:tabular-nums;font-size:12px;color:var(--ink-2);white-space:nowrap}
+.player .x{border:1px solid var(--line);background:transparent;border-radius:4px;padding:4px 8px;cursor:pointer;color:var(--muted)}
+.player .x:hover{color:var(--ink)}
+
+/* preview-mode modal */
+.modal{position:fixed;inset:0;z-index:30;background:rgba(10,14,20,.5);display:grid;place-items:center;padding:20px}
+.modal .box{background:var(--surface);border:1px solid var(--line);border-radius:8px;max-width:600px;width:100%;padding:22px 24px;box-shadow:0 20px 50px var(--shadow)}
+.modal h3{font-family:var(--font-display);font-weight:700;font-size:19px;margin:0 0 6px;letter-spacing:-.01em}
+.modal p{margin:0 0 6px;color:var(--ink-2)}
+.modal ol{padding-left:22px;margin:12px 0 0;display:grid;gap:10px;color:var(--ink)}
+.modal ol li::marker{color:var(--accent);font-weight:700}
+.modal .why{font-size:12.5px;color:var(--muted);margin-top:14px;border-top:1px solid var(--line-2);padding-top:10px}
+.bm{display:inline-block;padding:6px 12px;border:1.5px dashed var(--accent);border-radius:5px;color:var(--accent);font-weight:600;text-decoration:none;cursor:grab;background:var(--accent-soft)}
+.golink{display:inline-block;padding:6px 12px;border-radius:5px;background:var(--ink);color:var(--bg);font-weight:600;text-decoration:none}
+.modal .actions{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
+.btn2{border:1px solid var(--line);background:var(--surface-2);border-radius:5px;padding:6px 12px;cursor:pointer}
 
 /* footer */
 .foot{border-top:1px solid var(--line);color:var(--muted);font-size:12.5px}
@@ -156,9 +205,12 @@ mark{background:var(--mark);color:var(--mark-ink);border-radius:2px;padding:0 1p
       <h1>GDC Bundle <span>Finder</span></h1>
       <p class="lede" data-i18n="lede"></p>
     </div>
-    <div class="lang" role="group" aria-label="Language / 语言">
-      <button type="button" data-lang="en" aria-pressed="false">English</button>
-      <button type="button" data-lang="zh" aria-pressed="false">中文</button>
+    <div class="ctl">
+      <button type="button" class="chip" id="pvchip"><i></i><span></span></button>
+      <div class="lang" role="group" aria-label="Language / 语言">
+        <button type="button" data-lang="en" aria-pressed="false">English</button>
+        <button type="button" data-lang="zh" aria-pressed="false">中文</button>
+      </div>
     </div>
   </div>
   <div class="stats" aria-label="Index totals">
@@ -197,14 +249,45 @@ mark{background:var(--mark);color:var(--mark-ink);border-radius:2px;padding:0 1p
   <p data-i18n-html="foot2"></p>
 </div></footer>
 
+<div class="player" id="player" hidden>
+  <div class="wrap">
+    <button type="button" class="big" id="pbtn" data-state="idle" aria-label="Play / pause"><svg viewBox="0 0 12 12"><path d="M2 1l9 5-9 5z"/></svg></button>
+    <div class="info">
+      <div class="name" id="pname"></div>
+      <div class="sub" id="psub"></div>
+      <div class="bar" id="pbar"><b id="pload"></b><i id="pfill"></i></div>
+    </div>
+    <div class="right">
+      <span class="time" id="ptime">0:00 / 0:00</span>
+      <button type="button" class="x" id="pclose" aria-label="Close player">✕</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="pvmodal" hidden>
+  <div class="box" role="dialog" aria-modal="true" aria-labelledby="pvtitle">
+    <h3 id="pvtitle"></h3>
+    <p id="pvintro"></p>
+    <ol id="pvsteps"></ol>
+    <p class="why" id="pvwhy"></p>
+    <div class="actions"><button type="button" class="btn2" id="pvclose"></button></div>
+  </div>
+</div>
+
 <script>
 /*__DATA__*/
 </script>
 <script>
 (function(){
+  const SITE = 'https://yansixing.github.io/gdc-bundle-finder/';
+  const PV_HOST = 'downloads.sonniss.com';
+  const PV_URL = 'https://downloads.sonniss.com/gdc-finder';
+  const PREVIEW = location.hostname === PV_HOST;
+  const BOOKMARKLET = "javascript:(function(){if(location.hostname!=='"+PV_HOST+"'){alert('Open "+PV_URL+" first, then click this bookmark.');return;}fetch('"+SITE+"index.html',{cache:'no-store'}).then(function(r){return r.text();}).then(function(h){document.open();document.write(h);document.close();});})();";
+
   const I18N = {
     en: {
-      lede: 'Every file in the Sonniss #GameAudioGDC free bundles, 2015 to 2026, indexed by which zip it lives in. Search, then download only the parts you need.',
+      lede: 'Every file in the Sonniss #GameAudioGDC free bundles, 2015 to 2026, indexed by which zip it lives in. Search, preview single files, then download only the parts you need.',
       st_files:'audio files', st_libs:'libraries', st_zips:'zip parts', st_gb:'GB total',
       placeholder:'creak wood, cave drone, footsteps gravel, -car …',
       hint:'Words are ANDed · <code>-word</code> excludes · <code>"exact phrase"</code>',
@@ -217,13 +300,23 @@ mark{background:var(--mark);color:var(--mark-ink);border-radius:2px;padding:0 1p
       show_all:n=>'Show all '+n+' files', more_libs:n=>'Show '+n+' more libraries',
       empty:'<b>Nothing matches.</b>Try fewer words, or a broader term — library names are often generic ("Rocks", "Wind"), file names are specific.',
       th:['Bundle','Parts','Size','Libraries','Files','A few of the libraries inside'],
-      tips:[['Search by what you hear','Names are descriptive: try {creak wood}, {drip cave}, {footsteps gravel}.'],['Narrow with a minus','{drone -aircraft -quadcopter} drops the flying kind.'],['Browse a year','Click a year on the left to see every part and what it holds, no search needed.']],
+      tips:[['Search by what you hear','Names are descriptive: try {creak wood}, {drip cave}, {footsteps gravel}.'],['Narrow with a minus','{drone -aircraft -quadcopter} drops the flying kind.'],['Preview any single file','Press ▶ next to a file to hear it without downloading the zip. [How it works]']],
       direct:'Direct download from Sonniss', direct_gb:gb=>'Direct download, '+gb+' GB',
-      foot1:'<strong>No audio is hosted here.</strong> This page lists file names only. Download the 2015–2024 bundles from <a href="https://sonniss.com/gameaudiogdc/" target="_blank" rel="noopener">sonniss.com/gameaudiogdc</a> and the 2026 bundle from <a href="https://gdc.sonniss.com/" target="_blank" rel="noopener">gdc.sonniss.com</a>; each is free and royalty-free under the <a href="https://sonniss.com/gdc-bundle-license/" target="_blank" rel="noopener">#GameAudioGDC license</a>, which forbids re-uploading the sounds themselves.',
+      play:'Preview this file',
+      pv_on:'Preview mode on', pv_off:'Enable preview',
+      pv_title:'Preview files without downloading the zips',
+      pv_intro:'Each file can be streamed on its own straight from Sonniss’s server — but only from a page on that server, because browsers block cross-site requests. Two clicks set it up:',
+      pv_steps:['Drag this bookmark to your bookmarks bar: {bm}','Open {go} in a new tab (it shows “Not Found” — that is expected) and click the bookmark there. The finder loads with ▶ buttons that work.'],
+      pv_bm:'▶ GDC Finder preview', pv_go:'downloads.sonniss.com/gdc-finder',
+      pv_why:'Nothing is re-hosted: the audio bytes travel from Sonniss to your browser only, one file at a time, exactly as if you had downloaded the zip yourself. Needs a current Chrome, Edge, Firefox or Safari.',
+      pv_close:'Close',
+      p_fetch:mb=>'Fetching '+mb+' MB from Sonniss…', p_inflate:'Unpacking…', p_decode:'Decoding…', p_ready:(sr,ch,mb)=>sr/1000+' kHz · '+(ch===1?'mono':ch===2?'stereo':ch+' ch')+' · '+mb+' MB',
+      p_err:e=>'Could not play: '+e, p_big:mb=>'This file is '+mb+' MB compressed. Fetch it anyway?',
+      foot1:'<strong>No audio is hosted here.</strong> This page lists file names only; previews stream each file straight from Sonniss’s own server to your browser. Download the 2015–2024 bundles from <a href="https://sonniss.com/gameaudiogdc/" target="_blank" rel="noopener">sonniss.com/gameaudiogdc</a> and the 2026 bundle from <a href="https://gdc.sonniss.com/" target="_blank" rel="noopener">gdc.sonniss.com</a>; each is free and royalty-free under the <a href="https://sonniss.com/gdc-bundle-license/" target="_blank" rel="noopener">#GameAudioGDC license</a>, which forbids re-uploading the sounds themselves.',
       foot2:'The index was built by reading only the central directory at the tail of each zip (HTTP range requests), so it reflects the archives exactly as published. Parts are split roughly alphabetically by "Supplier - Library" folder. 2021, 2022 and 2023 ship together as one 14-part bundle; there was no 2025 bundle. Source on <a href="https://github.com/yansixing/gdc-bundle-finder" target="_blank" rel="noopener">GitHub</a>.'
     },
     zh: {
-      lede: 'Sonniss 每年 GDC 免费放出的音效包，2015 到 2026 年全部 78 卷 zip 里的每一个文件都在这里，标好了它在哪一卷。先搜，再只下你需要的那几卷。',
+      lede: 'Sonniss 每年 GDC 免费放出的音效包，2015 到 2026 年全部 78 卷 zip 里的每一个文件都在这里，标好了它在哪一卷。先搜、单文件试听，再只下你需要的那几卷。',
       st_files:'音频文件', st_libs:'音效库', st_zips:'zip 分卷', st_gb:'GB 合计',
       placeholder:'creak wood、cave drone、footsteps gravel、-car …（文件名都是英文）',
       hint:'多个词是“且” · <code>-词</code> 排除 · <code>"精确短语"</code>',
@@ -236,9 +329,19 @@ mark{background:var(--mark);color:var(--mark-ink);border-radius:2px;padding:0 1p
       show_all:n=>'展开全部 '+n+' 个文件', more_libs:n=>'再显示 '+n+' 个库',
       empty:'<b>没有匹配。</b>试试少写几个词，或者换个更宽泛的英文词。库名往往很笼统（Rocks、Wind），文件名才具体。',
       th:['年份','分卷数','大小','库','文件','里面有哪些库（节选）'],
-      tips:[['按你想听到的声音搜','文件名都是描述性的英文，试试 {creak wood}、{drip cave}、{footsteps gravel}。'],['用减号排除','{drone -aircraft -quadcopter} 能把飞行器那类 drone 去掉。'],['直接翻某一年','点左边的年份，不用搜也能看到每一卷装了什么。']],
+      tips:[['按你想听到的声音搜','文件名都是描述性的英文，试试 {creak wood}、{drip cave}、{footsteps gravel}。'],['用减号排除','{drone -aircraft -quadcopter} 能把飞行器那类 drone 去掉。'],['单个文件直接试听','点文件旁边的 ▶，不用下载整卷 zip 就能听。[怎么做到的]']],
       direct:'从 Sonniss 直接下载', direct_gb:gb=>'直接下载，'+gb+' GB',
-      foot1:'<strong>本站不存放任何音频。</strong>这里只有文件名。2015 到 2024 年的包请到 <a href="https://sonniss.com/gameaudiogdc/" target="_blank" rel="noopener">sonniss.com/gameaudiogdc</a> 下载，2026 年的在 <a href="https://gdc.sonniss.com/" target="_blank" rel="noopener">gdc.sonniss.com</a>，全部免费、免版税，遵循 <a href="https://sonniss.com/gdc-bundle-license/" target="_blank" rel="noopener">#GameAudioGDC 协议</a>；协议禁止把音效本身转载到别处。',
+      play:'试听这个文件',
+      pv_on:'试听模式已开启', pv_off:'开启试听',
+      pv_title:'不下载 zip，直接试听单个文件',
+      pv_intro:'每个文件都可以单独从 Sonniss 的服务器上流式取出来播放，但浏览器不允许跨站请求，所以页面必须跑在他们的域名下。两步设置好：',
+      pv_steps:['把这个书签拖到浏览器的书签栏：{bm}','新开标签页打开 {go}（显示 “Not Found” 是正常的），在那个页面点一下刚才的书签。查找器会在那里加载，▶ 按钮就能用了。'],
+      pv_bm:'▶ GDC Finder 试听', pv_go:'downloads.sonniss.com/gdc-finder',
+      pv_why:'没有任何二次托管：音频字节只从 Sonniss 流到你的浏览器，一次一个文件，和你自己下载 zip 是同一件事。需要较新的 Chrome、Edge、Firefox 或 Safari。',
+      pv_close:'关闭',
+      p_fetch:mb=>'正在从 Sonniss 取 '+mb+' MB…', p_inflate:'解压中…', p_decode:'解码中…', p_ready:(sr,ch,mb)=>sr/1000+' kHz · '+(ch===1?'单声道':ch===2?'立体声':ch+' 声道')+' · '+mb+' MB',
+      p_err:e=>'无法播放：'+e, p_big:mb=>'这个文件压缩后有 '+mb+' MB，仍然要取吗？',
+      foot1:'<strong>本站不存放任何音频。</strong>这里只有文件名；试听是把单个文件从 Sonniss 自己的服务器直接流到你的浏览器。2015 到 2024 年的包请到 <a href="https://sonniss.com/gameaudiogdc/" target="_blank" rel="noopener">sonniss.com/gameaudiogdc</a> 下载，2026 年的在 <a href="https://gdc.sonniss.com/" target="_blank" rel="noopener">gdc.sonniss.com</a>，全部免费、免版税，遵循 <a href="https://sonniss.com/gdc-bundle-license/" target="_blank" rel="noopener">#GameAudioGDC 协议</a>；协议禁止把音效本身转载到别处。',
       foot2:'索引是用 HTTP Range 请求只读每个 zip 尾部的中央目录建出来的，所以和官方发布的压缩包完全一致。分卷大致按“供应商 - 库名”的字母顺序切分。2021、2022、2023 三年合并成一个 14 卷的包；2025 年没有发包。源码在 <a href="https://github.com/yansixing/gdc-bundle-finder" target="_blank" rel="noopener">GitHub</a>。'
     }
   };
@@ -247,10 +350,11 @@ mark{background:var(--mark);color:var(--mark-ink);border-radius:2px;padding:0 1p
 
   const YEARS = ORDER;
   const libByIdx = LIBS; // [year, part, name]
-  const files = FILES;   // [libIdx, filename, sizeMB]
+  const files = FILES;   // [libIdx, filename, sizeMB, method, compSize, localHeaderOffset]
   const zipInfo = ZIPS;  // {year:{part:[gb,url]}}
   const $ = s => document.querySelector(s);
   const results = $('#results'), input = $('#q'), clearBtn = $('#clear'), yearsEl = $('#years'), partsEl = $('#parts'), pgrid = $('#pgrid'), resetBtn = $('#reset');
+  const pvchip = $('#pvchip'), pvmodal = $('#pvmodal');
 
   // ---- totals
   const totalZips = YEARS.reduce((a,y)=>a+Object.keys(zipInfo[y]).length,0);
@@ -260,7 +364,7 @@ mark{background:var(--mark);color:var(--mark-ink);border-radius:2px;padding:0 1p
   $('#st-zips').textContent = totalZips;
   $('#st-gb').textContent = Math.round(totalGB);
 
-  // ---- precompute lowercase haystacks
+  // ---- precompute
   const libLower = libByIdx.map(l => l[2].toLowerCase());
   const fileLower = files.map(f => f[1].toLowerCase());
   const filesByLib = []; files.forEach((f,i)=>{(filesByLib[f[0]] ||= []).push(i)});
@@ -281,7 +385,9 @@ mark{background:var(--mark);color:var(--mark-ink);border-radius:2px;padding:0 1p
     document.querySelectorAll('[data-i18n-html]').forEach(el=>{ el.innerHTML = t(el.dataset.i18nHtml); });
     input.placeholder = t('placeholder');
     document.querySelectorAll('.lang button').forEach(b=>b.setAttribute('aria-pressed', b.dataset.lang===L));
-    buildYears();
+    pvchip.classList.toggle('on', PREVIEW);
+    pvchip.querySelector('span').textContent = PREVIEW ? t('pv_on') : t('pv_off');
+    buildYears(); buildModal();
   }
 
   // ---- URL hash sync
@@ -290,12 +396,13 @@ mark{background:var(--mark);color:var(--mark-ink);border-radius:2px;padding:0 1p
     state.q = h.get('q') || ''; state.year = h.get('y') || null; state.part = h.get('p') ? +h.get('p') : null;
     input.value = state.q;
   }
-  function writeHash(){
+  function hashString(){
     const h = new URLSearchParams();
     if (state.q) h.set('q', state.q); if (state.year) h.set('y', state.year); if (state.part) h.set('p', state.part);
     if (L==='zh') h.set('lang','zh');
-    const s = h.toString(); history.replaceState(null, '', s ? '#'+s : location.pathname + location.search);
+    const s = h.toString(); return s ? '#'+s : '';
   }
+  function writeHash(){ const s=hashString(); history.replaceState(null, '', s || location.pathname + location.search); }
 
   // ---- query parsing
   function parse(q){
@@ -308,7 +415,7 @@ mark{background:var(--mark);color:var(--mark-ink);border-radius:2px;padding:0 1p
   function run(){
     const {inc, exc} = parse(state.q);
     const hasQ = inc.length>0 || exc.length>0;
-    const hitLibs = new Map(); // libIdx -> [fileIdx...]
+    const hitLibs = new Map();
     for(let li=0; li<libByIdx.length; li++){
       const l = libByIdx[li];
       if(state.year && l[0]!==state.year) continue;
@@ -338,7 +445,11 @@ mark{background:var(--mark);color:var(--mark-ink);border-radius:2px;padding:0 1p
   function splitName(n){ const i=n.indexOf(' - '); return i>0 ? [n.slice(0,i), n.slice(i+3)] : ['', n]; }
   function yearLabel(y){ return y==='2021-2023' ? '2021–2023' : y; }
   function zipLabel(y,p){ return (y==='2021-2023' ? '2021–23' : y)+' · Part '+p; }
-  function tipHtml(s){ return s.replace(/\{([^}]+)\}/g, (_,q)=>'<button type="button" data-q="'+esc(q)+'">'+esc(q)+'</button>'); }
+  function tipHtml(s){ return s.replace(/\{([^}]+)\}/g, (_,q)=>'<button type="button" data-q="'+esc(q)+'">'+esc(q)+'</button>').replace(/\[([^\]]+)\]/g, (_,x)=>'<button type="button" class="txt" data-pvhelp="1">'+esc(x)+'</button>'); }
+  const PLAY_SVG = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z"/></svg>';
+  const PAUSE_SVG = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1h3v10H2zM7 1h3v10H7z"/></svg>';
+  const SPIN_SVG = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 1a5 5 0 1 0 5 5h-1.6A3.4 3.4 0 1 1 6 2.6z"/></svg>';
+  function fileRow(fi, inc){ const f=files[fi]; return '<li><button type="button" class="play" data-fi="'+fi+'" data-state="idle" title="'+t('play')+'" aria-label="'+t('play')+'">'+PLAY_SVG+'</button><span>'+hl(f[1],inc)+'</span><span class="sz">'+f[2].toFixed(1)+' MB</span></li>'; }
 
   // ---- render
   const PAGE_LIBS = 40, PAGE_FILES = 12;
@@ -349,7 +460,7 @@ mark{background:var(--mark);color:var(--mark-ink);border-radius:2px;padding:0 1p
     resetBtn.hidden = !(state.year||state.part);
     clearBtn.hidden = !state.q;
 
-    if(!hasQ && !state.year){ results.innerHTML = overview(); return; }
+    if(!hasQ && !state.year){ results.innerHTML = overview(); syncPlayButtons(); return; }
 
     const zipHits = {};
     let nFiles = 0;
@@ -378,13 +489,13 @@ mark{background:var(--mark);color:var(--mark-ink);border-radius:2px;padding:0 1p
     results.innerHTML = html;
     results.dataset.libs = JSON.stringify(libs);
     results._hit = hitLibs; results._inc = inc;
+    syncPlayButtons();
   }
 
   function libCard(li, fl, inc){
     const l=libByIdx[li]; const [sup,name]=splitName(l[2]); const z=zipInfo[l[0]][l[1]];
     let h='<article class="lib" data-li="'+li+'"><header><a class="tag" href="'+z[1]+'" title="'+t('direct_gb')(z[0].toFixed(2))+'">'+zipLabel(l[0],l[1])+'</a><div class="name">'+(sup?'<span class="sup">'+hl(sup,inc)+' — </span>':'')+hl(name,inc)+'</div><span class="count">'+t('files')(fl.length)+'</span></header><ul class="files">';
-    const shown = fl.slice(0, PAGE_FILES);
-    for(const fi of shown){ const f=files[fi]; h+='<li><span>'+hl(f[1],inc)+'</span><span class="sz">'+f[2].toFixed(1)+' MB</span></li>'; }
+    for(const fi of fl.slice(0, PAGE_FILES)) h+=fileRow(fi, inc);
     if(fl.length>PAGE_FILES) h+='<li class="more"><span><button type="button" data-expand="'+li+'">'+t('show_all')(fl.length)+'</button></span><span></span></li>';
     return h+'</ul></article>';
   }
@@ -412,6 +523,99 @@ mark{background:var(--mark);color:var(--mark-ink);border-radius:2px;padding:0 1p
     pgrid.innerHTML = parts.map(p=>'<button type="button" class="part" data-p="'+p+'" aria-pressed="'+(state.part===p)+'" title="'+zipInfo[state.year][p][0].toFixed(2)+' GB">'+p+'</button>').join('');
   }
 
+  // ---- preview-mode modal
+  function buildModal(){
+    $('#pvtitle').textContent = t('pv_title'); $('#pvintro').textContent = t('pv_intro'); $('#pvwhy').textContent = t('pv_why'); $('#pvclose').textContent = t('pv_close');
+    const bm = '<a class="bm" href="'+BOOKMARKLET.replace(/"/g,'&quot;')+'" onclick="return false" draggable="true">'+esc(t('pv_bm'))+'</a>';
+    const go = '<a class="golink" href="'+PV_URL+hashString()+'" target="_blank" rel="noopener">'+esc(t('pv_go'))+' ↗</a>';
+    $('#pvsteps').innerHTML = t('pv_steps').map(s=>'<li>'+esc(s).replace('{bm}',bm).replace('{go}',go)+'</li>').join('');
+  }
+  function openModal(){ buildModal(); pvmodal.hidden=false; $('#pvclose').focus(); }
+  function closeModal(){ pvmodal.hidden=true; }
+
+  // ---- player
+  const P = { ac:null, fi:null, buf:null, src:null, startAt:0, offset:0, playing:false, loading:null, cache:new Map(), raf:0 };
+  const pl = { box:$('#player'), btn:$('#pbtn'), name:$('#pname'), sub:$('#psub'), bar:$('#pbar'), load:$('#pload'), fill:$('#pfill'), time:$('#ptime'), close:$('#pclose') };
+  const sleep = ms => new Promise(r=>setTimeout(r,ms));
+  async function rfetch(u, range, signal){
+    let last='';
+    for(let k=0;k<5;k++){
+      const r = await fetch(u,{headers:{Range:range},cache:'no-store',signal});
+      if(r.status===206) return r;
+      last='HTTP '+r.status; try{ r.body && r.body.cancel(); }catch(e){}
+      await sleep(400);
+    }
+    throw new Error(last);
+  }
+  const u16=(b,o)=>b[o]|b[o+1]<<8, u32=(b,o)=>(b[o]|b[o+1]<<8|b[o+2]<<16|b[o+3]<<24)>>>0;
+  function fmt(s){ s=Math.max(0,s|0); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); }
+  function ctx(){ if(!P.ac) P.ac = new (window.AudioContext||window.webkitAudioContext)(); return P.ac; }
+
+  async function loadBuffer(fi, signal){
+    if(P.cache.has(fi)) return P.cache.get(fi);
+    const f=files[fi]; const l=libByIdx[f[0]]; const url=zipInfo[l[0]][l[1]][1]; const method=f[3], cs=f[4], off=f[5];
+    const mb=(cs/2**20).toFixed(1);
+    pl.sub.textContent = t('p_fetch')(mb); pl.load.style.width='0%';
+    const lh = new Uint8Array(await (await rfetch(url,'bytes='+off+'-'+(off+29),signal)).arrayBuffer());
+    if(u32(lh,0)!==0x04034b50) throw new Error('bad zip entry');
+    const dataStart = off+30+u16(lh,26)+u16(lh,28);
+    const r = await rfetch(url,'bytes='+dataStart+'-'+(dataStart+cs-1),signal);
+    let got=0;
+    const counted = r.body.pipeThrough(new TransformStream({ transform(chunk,c){ got+=chunk.byteLength; pl.load.style.width=Math.min(100,got/cs*100).toFixed(1)+'%'; c.enqueue(chunk); } }));
+    const stream = method===8 ? counted.pipeThrough(new DecompressionStream('deflate-raw')) : counted;
+    const raw = await new Response(stream).arrayBuffer();
+    pl.load.style.width='100%'; pl.sub.textContent = t('p_decode');
+    const buf = await ctx().decodeAudioData(raw);
+    if(P.cache.size>=6) P.cache.delete(P.cache.keys().next().value);
+    P.cache.set(fi, buf);
+    return buf;
+  }
+  function stopSource(){ if(P.src){ try{P.src.onended=null; P.src.stop();}catch(e){} P.src=null; } P.playing=false; cancelAnimationFrame(P.raf); }
+  function startAt(offset){
+    stopSource(); const ac=ctx(); if(ac.state==='suspended') ac.resume();
+    const s=ac.createBufferSource(); s.buffer=P.buf; s.connect(ac.destination); s.start(0, offset);
+    s.onended=()=>{ if(P.src===s){ P.playing=false; P.offset=0; pl.fill.style.width='0%'; syncPlayButtons(); pl.btn.innerHTML=PLAY_SVG; pl.btn.dataset.state='idle'; pl.time.textContent='0:00 / '+fmt(P.buf.duration); } };
+    P.src=s; P.startAt=ac.currentTime-offset; P.offset=offset; P.playing=true;
+    pl.btn.innerHTML=PAUSE_SVG; pl.btn.dataset.state='playing'; tick(); syncPlayButtons();
+  }
+  function tick(){
+    if(!P.playing||!P.buf) return;
+    const pos=Math.min(P.buf.duration, ctx().currentTime-P.startAt);
+    pl.fill.style.width=(pos/P.buf.duration*100)+'%'; pl.time.textContent=fmt(pos)+' / '+fmt(P.buf.duration);
+    P.raf=requestAnimationFrame(tick);
+  }
+  function pause(){ if(!P.playing) return; P.offset=ctx().currentTime-P.startAt; stopSource(); pl.btn.innerHTML=PLAY_SVG; pl.btn.dataset.state='paused'; syncPlayButtons(); }
+  function syncPlayButtons(){
+    document.querySelectorAll('.play').forEach(b=>{ const fi=+b.dataset.fi; let st='idle';
+      if(fi===P.fi){ st = P.loading ? 'loading' : (P.playing ? 'playing' : 'idle'); }
+      b.dataset.state=st; b.innerHTML = st==='loading' ? SPIN_SVG : st==='playing' ? PAUSE_SVG : PLAY_SVG; });
+  }
+  async function play(fi){
+    if(!PREVIEW){ openModal(); return; }
+    if(fi===P.fi){ if(P.loading){ P.loading.abort(); P.loading=null; P.fi=null; syncPlayButtons(); pl.btn.dataset.state='idle'; pl.btn.innerHTML=PLAY_SVG; return; } if(P.playing) pause(); else startAt(P.offset); return; }
+    const f=files[fi];
+    if(f[4] > 150*2**20 && !confirm(t('p_big')((f[4]/2**20).toFixed(0)))) return;
+    if(P.loading) P.loading.abort();
+    stopSource(); P.fi=fi; P.buf=null; P.offset=0;
+    const ctl=new AbortController(); P.loading=ctl;
+    pl.box.hidden=false; document.body.classList.add('has-player');
+    pl.name.textContent=f[1]; pl.time.textContent='0:00 / 0:00'; pl.fill.style.width='0%'; pl.btn.innerHTML=SPIN_SVG; pl.btn.dataset.state='loading'; syncPlayButtons();
+    try{
+      const buf=await loadBuffer(fi, ctl.signal);
+      if(P.loading!==ctl) return;
+      P.loading=null; P.buf=buf;
+      pl.sub.textContent=t('p_ready')(buf.sampleRate, buf.numberOfChannels, f[2].toFixed(1));
+      startAt(0);
+    }catch(e){
+      if(e.name==='AbortError') return;
+      P.loading=null; P.fi=null; pl.btn.innerHTML=PLAY_SVG; pl.btn.dataset.state='idle'; pl.sub.textContent=t('p_err')(e.message||e); syncPlayButtons();
+    }
+  }
+  pl.btn.addEventListener('click', ()=>{ if(P.fi==null) return; if(P.loading){ play(P.fi); return; } if(P.playing) pause(); else if(P.buf) startAt(P.offset); });
+  pl.bar.addEventListener('click', e=>{ if(!P.buf) return; const r=pl.bar.getBoundingClientRect(); const frac=(e.clientX-r.left)/r.width; startAt(Math.max(0,Math.min(P.buf.duration-0.05, frac*P.buf.duration))); });
+  pl.close.addEventListener('click', ()=>{ if(P.loading){P.loading.abort();P.loading=null;} stopSource(); P.fi=null; P.buf=null; pl.box.hidden=true; document.body.classList.remove('has-player'); syncPlayButtons(); });
+  document.addEventListener('keydown', e=>{ if(e.code==='Space' && P.fi!=null && document.activeElement!==input && !e.target.closest('button,a')){ e.preventDefault(); pl.btn.click(); } });
+
   // ---- events
   let tm; input.addEventListener('input', ()=>{ clearTimeout(tm); tm=setTimeout(()=>{ state.q=input.value.trim(); writeHash(); run(); }, 120); });
   clearBtn.addEventListener('click', ()=>{ input.value=''; state.q=''; writeHash(); run(); input.focus(); });
@@ -419,12 +623,18 @@ mark{background:var(--mark);color:var(--mark-ink);border-radius:2px;padding:0 1p
   pgrid.addEventListener('click', e=>{ const b=e.target.closest('.part'); if(!b) return; const p=+b.dataset.p; state.part = state.part===p ? null : p; writeHash(); run(); });
   resetBtn.addEventListener('click', ()=>{ state.year=null; state.part=null; writeHash(); run(); });
   document.querySelector('.lang').addEventListener('click', e=>{ const b=e.target.closest('[data-lang]'); if(!b||b.dataset.lang===L) return; L=b.dataset.lang; try{localStorage.setItem('gdc-lang',L);}catch(x){} applyLang(); writeHash(); run(); });
+  pvchip.addEventListener('click', ()=>{ if(!PREVIEW) openModal(); });
+  $('#pvclose').addEventListener('click', closeModal);
+  pvmodal.addEventListener('click', e=>{ if(e.target===pvmodal) closeModal(); });
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape' && !pvmodal.hidden) closeModal(); });
   results.addEventListener('click', e=>{
+    const pb=e.target.closest('.play'); if(pb){ play(+pb.dataset.fi); return; }
+    const ph=e.target.closest('[data-pvhelp]'); if(ph){ openModal(); return; }
     const s=e.target.closest('[data-sort]'); if(s){ state.sort=s.dataset.sort; run(); return; }
     const y=e.target.closest('[data-year]'); if(y){ state.year=y.dataset.year; state.part=null; writeHash(); run(); return; }
     const q=e.target.closest('[data-q]'); if(q){ input.value=q.dataset.q; state.q=q.dataset.q; writeHash(); run(); return; }
-    const x=e.target.closest('[data-expand]'); if(x){ const li=+x.dataset.expand; const card=results.querySelector('.lib[data-li="'+li+'"]'); const fl=results._hit.get(li); const ul=card.querySelector('.files'); ul.innerHTML = fl.map(fi=>{const f=files[fi];return '<li><span>'+hl(f[1],results._inc)+'</span><span class="sz">'+f[2].toFixed(1)+' MB</span></li>';}).join(''); return; }
-    const m=e.target.closest('#morelibs'); if(m){ const libs=JSON.parse(results.dataset.libs); const done=results.querySelectorAll('.lib').length; const next=libs.slice(done, done+PAGE_LIBS); m.insertAdjacentHTML('beforebegin', next.map(li=>libCard(li, results._hit.get(li), results._inc)).join('')); const left=libs.length-done-next.length; if(left>0) m.textContent=t('more_libs')(left); else m.remove(); }
+    const x=e.target.closest('[data-expand]'); if(x){ const li=+x.dataset.expand; const card=results.querySelector('.lib[data-li="'+li+'"]'); const fl=results._hit.get(li); card.querySelector('.files').innerHTML = fl.map(fi=>fileRow(fi, results._inc)).join(''); syncPlayButtons(); return; }
+    const m=e.target.closest('#morelibs'); if(m){ const libs=JSON.parse(results.dataset.libs); const done=results.querySelectorAll('.lib').length; const next=libs.slice(done, done+PAGE_LIBS); m.insertAdjacentHTML('beforebegin', next.map(li=>libCard(li, results._hit.get(li), results._inc)).join('')); const left=libs.length-done-next.length; if(left>0) m.textContent=t('more_libs')(left); else m.remove(); syncPlayButtons(); }
   });
   window.addEventListener('hashchange', ()=>{ readHash(); run(); });
   document.addEventListener('keydown', e=>{ if(e.key==='/' && document.activeElement!==input){ e.preventDefault(); input.focus(); } });

@@ -8,6 +8,12 @@ Sonniss 每年 GDC 期间免费放出的 **#GameAudioGDC** 音效包（2015 到 
 
 **本仓库不存放任何音频。** 网页只列文件名，每个音效库旁边的标签直接链到 Sonniss 服务器上对应的那一卷 zip。2015 到 2024 年的包请到 <https://sonniss.com/gameaudiogdc/> 下载，2026 年的在 <https://gdc.sonniss.com/>，全部免费、免版税、可商用，遵循 [#GameAudioGDC 协议](https://sonniss.com/gdc-bundle-license/)。协议明确禁止把音效本身转载、重新打包或上传到别处，所以这里只有索引。
 
+## 不下载 zip，直接试听单个文件
+
+zip 里每个文件都是一段独立的字节，Sonniss 的下载服务器又支持 HTTP Range 请求。所以你点 ▶ 的时候，页面只取那一个文件（一般 5 到 30 MB），用浏览器自带的 `DecompressionStream` 解压、Web Audio 解码后播放。没有任何二次托管：字节只从 Sonniss 流到你的浏览器，一次一个文件。
+
+浏览器不允许跨站请求，这个功能只有页面跑在 Sonniss 自己的下载域名下才能用。设置就两步：把页面上的"GDC Finder 试听"书签拖到书签栏，新开标签打开 <https://downloads.sonniss.com/gdc-finder>（显示 Not Found 是正常的），在那个页面点一下书签，查找器就会在那里加载，▶ 按钮就能用了。需要较新的 Chrome、Edge、Firefox 或 Safari。
+
 ## 文件说明
 
 | 文件 | 用途 |
