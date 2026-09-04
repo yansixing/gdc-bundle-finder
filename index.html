@@ -1,7 +1,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>GDC Bundle Finder</title>
-<meta name="description" content="Search every file in the Sonniss #GameAudioGDC free bundles (2015–2024) and see exactly which zip part to download.">
+<meta name="description" content="Search every file in the Sonniss #GameAudioGDC free bundles (2015–2024) and see exactly which zip part to download. 搜索 Sonniss GDC 免费音效包里的每一个文件，直接看到该下哪一卷。">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
@@ -9,8 +9,8 @@
   --bg:#EEF0F3; --surface:#FFFFFF; --surface-2:#F6F7F9; --ink:#161B22; --ink-2:#4C5561; --muted:#7A8391;
   --line:#D7DCE3; --line-2:#E6EAEF; --accent:#C2451E; --accent-ink:#FFFFFF; --accent-soft:#FBE9E2;
   --focus:#2E6BD6; --mark:#FFE9A8; --mark-ink:#3A2A00;
-  --font-display:"Bricolage Grotesque","Helvetica Neue",Arial,sans-serif;
-  --font-body:"IBM Plex Sans","Segoe UI",Helvetica,Arial,sans-serif;
+  --font-display:"Bricolage Grotesque","PingFang SC","Hiragino Sans GB","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;
+  --font-body:"IBM Plex Sans","PingFang SC","Hiragino Sans GB","Microsoft YaHei","Segoe UI",Helvetica,Arial,sans-serif;
   --font-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
 }
 @media (prefers-color-scheme: dark){
@@ -36,13 +36,19 @@ button,input{font:inherit;color:inherit}
 
 /* header */
 .top{border-bottom:1px solid var(--line);background:var(--surface)}
-.top .wrap{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:end;padding-top:26px;padding-bottom:18px}
+.top .wrap{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:end;padding-top:22px;padding-bottom:18px}
+.brand{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;grid-column:1 / -1}
 h1{font-family:var(--font-display);font-weight:800;font-size:30px;line-height:1.05;letter-spacing:-.01em;margin:0 0 6px;text-wrap:balance}
 h1 span{color:var(--accent)}
 .lede{margin:0;color:var(--ink-2);max-width:62ch}
+.lang{display:inline-flex;border:1px solid var(--line);border-radius:5px;overflow:hidden;flex:none}
+.lang button{border:0;background:var(--surface);padding:5px 10px;cursor:pointer;font-size:12.5px;color:var(--ink-2)}
+.lang button+button{border-left:1px solid var(--line)}
+.lang button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
 .stats{display:flex;gap:22px;font-variant-numeric:tabular-nums;color:var(--ink-2);white-space:nowrap}
 .stats b{display:block;font-family:var(--font-display);font-weight:700;font-size:22px;color:var(--ink);line-height:1.1}
 .stats small{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+@media (max-width:760px){.top .wrap{grid-template-columns:1fr}.stats{gap:16px;flex-wrap:wrap}}
 
 /* search bar */
 .searchbar{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
@@ -79,7 +85,6 @@ h1 span{color:var(--accent)}
 .pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(40px,1fr));gap:4px}
 .part{border:1px solid var(--line);background:var(--surface);border-radius:4px;padding:5px 0;text-align:center;cursor:pointer;font-family:var(--font-mono);font-size:12px}
 .part[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
-.part.dim{opacity:.35}
 .reset{margin-top:14px;border:0;background:transparent;color:var(--accent);cursor:pointer;padding:0;font-weight:600;font-size:13px}
 .reset:hover{text-decoration:underline}
 
@@ -146,44 +151,50 @@ mark{background:var(--mark);color:var(--mark-ink);border-radius:2px;padding:0 1p
 </style>
 
 <header class="top"><div class="wrap">
-  <div>
-    <h1>GDC Bundle <span>Finder</span></h1>
-    <p class="lede">Every file in the Sonniss #GameAudioGDC free bundles, 2015 to 2024, indexed by which zip it lives in. Search, then download only the parts you need.</p>
+  <div class="brand">
+    <div>
+      <h1>GDC Bundle <span>Finder</span></h1>
+      <p class="lede" data-i18n="lede"></p>
+    </div>
+    <div class="lang" role="group" aria-label="Language / 语言">
+      <button type="button" data-lang="en" aria-pressed="false">English</button>
+      <button type="button" data-lang="zh" aria-pressed="false">中文</button>
+    </div>
   </div>
   <div class="stats" aria-label="Index totals">
-    <div><b id="st-files">0</b><small>audio files</small></div>
-    <div><b id="st-libs">0</b><small>libraries</small></div>
-    <div><b id="st-zips">0</b><small>zip parts</small></div>
-    <div><b id="st-gb">0</b><small>GB total</small></div>
+    <div><b id="st-files">0</b><small data-i18n="st_files"></small></div>
+    <div><b id="st-libs">0</b><small data-i18n="st_libs"></small></div>
+    <div><b id="st-zips">0</b><small data-i18n="st_zips"></small></div>
+    <div><b id="st-gb">0</b><small data-i18n="st_gb"></small></div>
   </div>
 </div></header>
 
 <div class="searchbar"><div class="wrap">
   <label class="search">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
-    <input id="q" type="search" placeholder="creak wood, cave drone, footsteps gravel, -car …" autocomplete="off" spellcheck="false" aria-label="Search library and file names">
+    <input id="q" type="search" autocomplete="off" spellcheck="false" aria-label="Search library and file names">
     <button class="clear" id="clear" type="button" aria-label="Clear search" hidden>✕</button>
   </label>
-  <div class="hint">Words are ANDed · <code>-word</code> excludes · <code>"exact phrase"</code></div>
+  <div class="hint" data-i18n-html="hint"></div>
 </div></div>
 
 <div class="wrap main">
   <aside class="filters">
-    <p class="flabel">Bundle year</p>
+    <p class="flabel" data-i18n="f_year"></p>
     <div class="years" id="years"></div>
     <div class="parts" id="parts">
-      <p class="flabel" style="margin-top:0">Zip part</p>
+      <p class="flabel" style="margin-top:0" data-i18n="f_part"></p>
       <div class="pgrid" id="pgrid"></div>
     </div>
-    <button class="reset" id="reset" type="button" hidden>Clear filters</button>
+    <button class="reset" id="reset" type="button" hidden data-i18n="f_reset"></button>
   </aside>
 
   <section id="results" aria-live="polite"></section>
 </div>
 
 <footer class="foot"><div class="wrap">
-  <p><strong>No audio is hosted here.</strong> This page lists file names only. Download the bundles from <a href="https://sonniss.com/gameaudiogdc/" target="_blank" rel="noopener">sonniss.com/gameaudiogdc</a>; each is free and royalty-free under the <a href="https://sonniss.com/gdc-bundle-license/" target="_blank" rel="noopener">#GameAudioGDC license</a>, which forbids re-uploading the sounds themselves.</p>
-  <p>The index was built by reading only the central directory at the tail of each zip (HTTP range requests), so it reflects the archives exactly as published. Parts are split roughly alphabetically by "Supplier - Library" folder. 2021, 2022 and 2023 ship together as one 14-part bundle.</p>
+  <p data-i18n-html="foot1"></p>
+  <p data-i18n-html="foot2"></p>
 </div></footer>
 
 <script>
@@ -195,6 +206,49 @@ const SAMPLES={"2015":["Moscow Ambience","Gore","Metal Plate","Monster Zombie Vo
 </script>
 <script>
 (function(){
+  const I18N = {
+    en: {
+      lede: 'Every file in the Sonniss #GameAudioGDC free bundles, 2015 to 2024, indexed by which zip it lives in. Search, then download only the parts you need.',
+      st_files:'audio files', st_libs:'libraries', st_zips:'zip parts', st_gb:'GB total',
+      placeholder:'creak wood, cave drone, footsteps gravel, -car …',
+      hint:'Words are ANDed · <code>-word</code> excludes · <code>"exact phrase"</code>',
+      f_year:'Bundle year', f_part:'Zip part', f_reset:'Clear filters', libs:'libs',
+      answer:(z,gb,n)=>'Download <em>'+z+' zip'+(z>1?'s':'')+'</em> ('+gb+' GB) to get all '+n+' matching files',
+      note:'Links go straight to Sonniss’s servers. Sorted by year, then part — the top of this list is usually the highest-value download.',
+      hits:n=>n+' hit'+(n>1?'s':''), files:n=>n+' file'+(n>1?'s':''),
+      meta:(l,f)=>l+' librar'+(l===1?'y':'ies')+' · '+f+' files',
+      sort_year:'Year &amp; part', sort_hits:'Most hits',
+      show_all:n=>'Show all '+n+' files', more_libs:n=>'Show '+n+' more libraries',
+      empty:'<b>Nothing matches.</b>Try fewer words, or a broader term — library names are often generic ("Rocks", "Wind"), file names are specific.',
+      th:['Bundle','Parts','Size','Libraries','Files','A few of the libraries inside'],
+      tips:[['Search by what you hear','Names are descriptive: try {creak wood}, {drip cave}, {footsteps gravel}.'],['Narrow with a minus','{drone -aircraft -quadcopter} drops the flying kind.'],['Browse a year','Click a year on the left to see every part and what it holds, no search needed.']],
+      direct:'Direct download from Sonniss', direct_gb:gb=>'Direct download, '+gb+' GB',
+      foot1:'<strong>No audio is hosted here.</strong> This page lists file names only. Download the bundles from <a href="https://sonniss.com/gameaudiogdc/" target="_blank" rel="noopener">sonniss.com/gameaudiogdc</a>; each is free and royalty-free under the <a href="https://sonniss.com/gdc-bundle-license/" target="_blank" rel="noopener">#GameAudioGDC license</a>, which forbids re-uploading the sounds themselves.',
+      foot2:'The index was built by reading only the central directory at the tail of each zip (HTTP range requests), so it reflects the archives exactly as published. Parts are split roughly alphabetically by "Supplier - Library" folder. 2021, 2022 and 2023 ship together as one 14-part bundle. Source on <a href="https://github.com/yansixing/gdc-bundle-finder" target="_blank" rel="noopener">GitHub</a>.'
+    },
+    zh: {
+      lede: 'Sonniss 每年 GDC 免费放出的音效包，2015 到 2024 年全部 73 卷 zip 里的每一个文件都在这里，标好了它在哪一卷。先搜，再只下你需要的那几卷。',
+      st_files:'音频文件', st_libs:'音效库', st_zips:'zip 分卷', st_gb:'GB 合计',
+      placeholder:'creak wood、cave drone、footsteps gravel、-car …（文件名都是英文）',
+      hint:'多个词是“且” · <code>-词</code> 排除 · <code>"精确短语"</code>',
+      f_year:'年份', f_part:'分卷', f_reset:'清除筛选', libs:'个库',
+      answer:(z,gb,n)=>'下载 <em>'+z+' 个 zip</em>（共 '+gb+' GB）就能拿到全部 '+n+' 个匹配文件',
+      note:'链接直达 Sonniss 服务器。按年份和分卷排序，通常最前面那个最值得下。',
+      hits:n=>n+' 条命中', files:n=>n+' 个文件',
+      meta:(l,f)=>l+' 个库 · '+f+' 个文件',
+      sort_year:'按年份和分卷', sort_hits:'按命中数',
+      show_all:n=>'展开全部 '+n+' 个文件', more_libs:n=>'再显示 '+n+' 个库',
+      empty:'<b>没有匹配。</b>试试少写几个词，或者换个更宽泛的英文词。库名往往很笼统（Rocks、Wind），文件名才具体。',
+      th:['年份','分卷数','大小','库','文件','里面有哪些库（节选）'],
+      tips:[['按你想听到的声音搜','文件名都是描述性的英文，试试 {creak wood}、{drip cave}、{footsteps gravel}。'],['用减号排除','{drone -aircraft -quadcopter} 能把飞行器那类 drone 去掉。'],['直接翻某一年','点左边的年份，不用搜也能看到每一卷装了什么。']],
+      direct:'从 Sonniss 直接下载', direct_gb:gb=>'直接下载，'+gb+' GB',
+      foot1:'<strong>本站不存放任何音频。</strong>这里只有文件名。音效请到 <a href="https://sonniss.com/gameaudiogdc/" target="_blank" rel="noopener">sonniss.com/gameaudiogdc</a> 下载，全部免费、免版税，遵循 <a href="https://sonniss.com/gdc-bundle-license/" target="_blank" rel="noopener">#GameAudioGDC 协议</a>；协议禁止把音效本身转载到别处。',
+      foot2:'索引是用 HTTP Range 请求只读每个 zip 尾部的中央目录建出来的，所以和官方发布的压缩包完全一致。分卷大致按“供应商 - 库名”的字母顺序切分。2021、2022、2023 三年合并成一个 14 卷的包。源码在 <a href="https://github.com/yansixing/gdc-bundle-finder" target="_blank" rel="noopener">GitHub</a>。'
+    }
+  };
+  let L = 'en';
+  const t = k => I18N[L][k];
+
   const YEARS = ORDER;
   const libByIdx = LIBS; // [year, part, name]
   const files = FILES;   // [libIdx, filename, sizeMB]
@@ -214,10 +268,25 @@ const SAMPLES={"2015":["Moscow Ambience","Gore","Metal Plate","Monster Zombie Vo
   const libLower = libByIdx.map(l => l[2].toLowerCase());
   const fileLower = files.map(f => f[1].toLowerCase());
   const filesByLib = []; files.forEach((f,i)=>{(filesByLib[f[0]] ||= []).push(i)});
-  const libsByYearPart = {}; libByIdx.forEach((l,i)=>{ const k=l[0]+'/'+l[1]; (libsByYearPart[k] ||= []).push(i); });
 
   // ---- state
   let state = { q:'', year:null, part:null, sort:'year' };
+
+  // ---- language
+  function detectLang(){
+    const h = new URLSearchParams(location.hash.replace(/^#/, ''));
+    if (h.get('lang')==='zh' || h.get('lang')==='en') return h.get('lang');
+    try { const s = localStorage.getItem('gdc-lang'); if (s==='zh'||s==='en') return s; } catch(e){}
+    return /^zh/i.test(navigator.language||'') ? 'zh' : 'en';
+  }
+  function applyLang(){
+    document.documentElement.lang = L==='zh' ? 'zh-CN' : 'en';
+    document.querySelectorAll('[data-i18n]').forEach(el=>{ el.textContent = t(el.dataset.i18n); });
+    document.querySelectorAll('[data-i18n-html]').forEach(el=>{ el.innerHTML = t(el.dataset.i18nHtml); });
+    input.placeholder = t('placeholder');
+    document.querySelectorAll('.lang button').forEach(b=>b.setAttribute('aria-pressed', b.dataset.lang===L));
+    buildYears();
+  }
 
   // ---- URL hash sync
   function readHash(){
@@ -228,16 +297,16 @@ const SAMPLES={"2015":["Moscow Ambience","Gore","Metal Plate","Monster Zombie Vo
   function writeHash(){
     const h = new URLSearchParams();
     if (state.q) h.set('q', state.q); if (state.year) h.set('y', state.year); if (state.part) h.set('p', state.part);
+    if (L==='zh') h.set('lang','zh');
     const s = h.toString(); history.replaceState(null, '', s ? '#'+s : location.pathname + location.search);
   }
 
   // ---- query parsing
   function parse(q){
     const inc=[], exc=[]; const re=/-?"[^"]+"|\S+/g; let m;
-    while((m=re.exec(q))){ let t=m[0]; let neg=false; if(t.startsWith('-')){neg=true;t=t.slice(1);} t=t.replace(/^"|"$/g,'').toLowerCase(); if(!t) continue; (neg?exc:inc).push(t); }
+    while((m=re.exec(q))){ let x=m[0]; let neg=false; if(x.startsWith('-')){neg=true;x=x.slice(1);} x=x.replace(/^"|"$/g,'').toLowerCase(); if(!x) continue; (neg?exc:inc).push(x); }
     return {inc, exc};
   }
-  function matchText(hay, terms){ for(const t of terms) if(!hay.includes(t)) return false; return true; }
 
   // ---- search
   function run(){
@@ -251,27 +320,29 @@ const SAMPLES={"2015":["Moscow Ambience","Gore","Metal Plate","Monster Zombie Vo
       const fl = filesByLib[li] || [];
       if(!hasQ){ hitLibs.set(li, fl); continue; }
       const libHay = libLower[li];
-      const libAllInc = inc.every(t=>libHay.includes(t));
+      const libAllInc = inc.every(x=>libHay.includes(x));
       const out=[];
       for(const fi of fl){
         const hay = libHay+' '+fileLower[fi];
-        if(exc.some(t=>hay.includes(t))) continue;
-        if(libAllInc || inc.every(t=>hay.includes(t))) out.push(fi);
+        if(exc.some(x=>hay.includes(x))) continue;
+        if(libAllInc || inc.every(x=>hay.includes(x))) out.push(fi);
       }
       if(out.length) hitLibs.set(li, out);
     }
     render(hitLibs, inc, hasQ);
   }
 
-  // ---- highlight
+  // ---- helpers
   function esc(s){ return s.replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
   function hl(s, terms){
     if(!terms.length) return esc(s);
-    const re = new RegExp('('+terms.map(t=>t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|')+')','ig');
+    const re = new RegExp('('+terms.map(x=>x.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|')+')','ig');
     return s.split(re).map((p,i)=> i%2 ? '<mark>'+esc(p)+'</mark>' : esc(p)).join('');
   }
   function splitName(n){ const i=n.indexOf(' - '); return i>0 ? [n.slice(0,i), n.slice(i+3)] : ['', n]; }
+  function yearLabel(y){ return y==='2021-2023' ? '2021–2023' : y; }
   function zipLabel(y,p){ return (y==='2021-2023' ? '2021–23' : y)+' · Part '+p; }
+  function tipHtml(s){ return s.replace(/\{([^}]+)\}/g, (_,q)=>'<button type="button" data-q="'+esc(q)+'">'+esc(q)+'</button>'); }
 
   // ---- render
   const PAGE_LIBS = 40, PAGE_FILES = 12;
@@ -284,35 +355,30 @@ const SAMPLES={"2015":["Moscow Ambience","Gore","Metal Plate","Monster Zombie Vo
 
     if(!hasQ && !state.year){ results.innerHTML = overview(); return; }
 
-    // zips to download
     const zipHits = {};
     let nFiles = 0;
     for(const [li, fl] of hitLibs){ const l=libByIdx[li]; const k=l[0]+'/'+l[1]; zipHits[k] = (zipHits[k]||0)+fl.length; nFiles += fl.length; }
     const zipKeys = Object.keys(zipHits).sort((a,b)=>{ const [ya,pa]=a.split('/'),[yb,pb]=b.split('/'); return ya===yb ? +pa-+pb : YEARS.indexOf(ya)-YEARS.indexOf(yb); });
 
     let html='';
-    if(hitLibs.size===0){
-      results.innerHTML = '<div class="empty"><b>Nothing matches.</b>Try fewer words, or a broader term — library names are often generic ("Rocks", "Wind"), file names are specific.</div>';
-      return;
-    }
+    if(hitLibs.size===0){ results.innerHTML = '<div class="empty">'+t('empty')+'</div>'; return; }
     if(hasQ){
       const gbSum = zipKeys.reduce((a,k)=>{const [y,p]=k.split('/');return a+zipInfo[y][p][0];},0);
-      html += '<div class="answer"><h2>Download <em>'+zipKeys.length+' zip'+(zipKeys.length>1?'s':'')+'</em> ('+gbSum.toFixed(1)+' GB) to get all '+nFiles.toLocaleString()+' matching files</h2><div class="zips">';
+      html += '<div class="answer"><h2>'+t('answer')(zipKeys.length, gbSum.toFixed(1), nFiles.toLocaleString())+'</h2><div class="zips">';
       for(const k of zipKeys){ const [y,p]=k.split('/'); const z=zipInfo[y][p];
-        html += '<a class="zip" href="'+z[1]+'" title="Direct download from Sonniss"><span class="tag">'+zipLabel(y,p)+'</span><span class="gb">'+z[0].toFixed(2)+' GB</span><span class="hits">'+zipHits[k]+' hit'+(zipHits[k]>1?'s':'')+'</span></a>'; }
-      html += '</div><p class="note">Links go straight to Sonniss’s servers. Sorted by year, then part — the top of this list is usually the highest-value download.</p></div>';
+        html += '<a class="zip" href="'+z[1]+'" title="'+t('direct')+'"><span class="tag">'+zipLabel(y,p)+'</span><span class="gb">'+z[0].toFixed(2)+' GB</span><span class="hits">'+t('hits')(zipHits[k])+'</span></a>'; }
+      html += '</div><p class="note">'+t('note')+'</p></div>';
     }
 
-    // list
     let libs = [...hitLibs.keys()];
     if(state.sort==='hits') libs.sort((a,b)=>hitLibs.get(b).length-hitLibs.get(a).length);
     else libs.sort((a,b)=>{ const A=libByIdx[a],B=libByIdx[b]; return YEARS.indexOf(A[0])-YEARS.indexOf(B[0]) || A[1]-B[1] || A[2].localeCompare(B[2]); });
 
-    html += '<div class="meta"><span>'+hitLibs.size.toLocaleString()+' librar'+(hitLibs.size===1?'y':'ies')+' · '+nFiles.toLocaleString()+' files</span><span class="sort" role="group" aria-label="Sort"><button type="button" data-sort="year" aria-pressed="'+(state.sort==='year')+'">Year &amp; part</button><button type="button" data-sort="hits" aria-pressed="'+(state.sort==='hits')+'">Most hits</button></span></div>';
+    html += '<div class="meta"><span>'+t('meta')(hitLibs.size, nFiles.toLocaleString())+'</span><span class="sort" role="group"><button type="button" data-sort="year" aria-pressed="'+(state.sort==='year')+'">'+t('sort_year')+'</button><button type="button" data-sort="hits" aria-pressed="'+(state.sort==='hits')+'">'+t('sort_hits')+'</button></span></div>';
 
     const show = libs.slice(0, PAGE_LIBS);
     for(const li of show) html += libCard(li, hitLibs.get(li), inc);
-    if(libs.length > PAGE_LIBS) html += '<button class="showmore" type="button" id="morelibs">Show '+(libs.length-PAGE_LIBS)+' more libraries</button>';
+    if(libs.length > PAGE_LIBS) html += '<button class="showmore" type="button" id="morelibs">'+t('more_libs')(libs.length-PAGE_LIBS)+'</button>';
     results.innerHTML = html;
     results.dataset.libs = JSON.stringify(libs);
     results._hit = hitLibs; results._inc = inc;
@@ -320,29 +386,30 @@ const SAMPLES={"2015":["Moscow Ambience","Gore","Metal Plate","Monster Zombie Vo
 
   function libCard(li, fl, inc){
     const l=libByIdx[li]; const [sup,name]=splitName(l[2]); const z=zipInfo[l[0]][l[1]];
-    let h='<article class="lib" data-li="'+li+'"><header><a class="tag" href="'+z[1]+'" title="Direct download, '+z[0].toFixed(2)+' GB">'+zipLabel(l[0],l[1])+'</a><div class="name">'+(sup?'<span class="sup">'+hl(sup,inc)+' — </span>':'')+hl(name,inc)+'</div><span class="count">'+fl.length+' file'+(fl.length>1?'s':'')+'</span></header><ul class="files">';
+    let h='<article class="lib" data-li="'+li+'"><header><a class="tag" href="'+z[1]+'" title="'+t('direct_gb')(z[0].toFixed(2))+'">'+zipLabel(l[0],l[1])+'</a><div class="name">'+(sup?'<span class="sup">'+hl(sup,inc)+' — </span>':'')+hl(name,inc)+'</div><span class="count">'+t('files')(fl.length)+'</span></header><ul class="files">';
     const shown = fl.slice(0, PAGE_FILES);
     for(const fi of shown){ const f=files[fi]; h+='<li><span>'+hl(f[1],inc)+'</span><span class="sz">'+f[2].toFixed(1)+' MB</span></li>'; }
-    if(fl.length>PAGE_FILES) h+='<li class="more"><span><button type="button" data-expand="'+li+'">Show all '+fl.length+' files</button></span><span></span></li>';
+    if(fl.length>PAGE_FILES) h+='<li class="more"><span><button type="button" data-expand="'+li+'">'+t('show_all')(fl.length)+'</button></span><span></span></li>';
     return h+'</ul></article>';
   }
 
   function overview(){
-    let h='<div class="overview"><div class="tablewrap"><table><thead><tr><th>Bundle</th><th class="num">Parts</th><th class="num">Size</th><th class="num">Libraries</th><th class="num">Files</th><th>A few of the libraries inside</th></tr></thead><tbody>';
+    const th=t('th');
+    let h='<div class="overview"><div class="tablewrap"><table><thead><tr><th>'+th[0]+'</th><th class="num">'+th[1]+'</th><th class="num">'+th[2]+'</th><th class="num">'+th[3]+'</th><th class="num">'+th[4]+'</th><th>'+th[5]+'</th></tr></thead><tbody>';
     for(const y of YEARS){
       const parts=Object.keys(zipInfo[y]); const gb=parts.reduce((a,p)=>a+zipInfo[y][p][0],0);
       const libs=libByIdx.map((l,i)=>[l,i]).filter(x=>x[0][0]===y); const nf=libs.reduce((a,x)=>a+(filesByLib[x[1]]||[]).length,0);
       const ex = SAMPLES[y] || [];
-      h+='<tr><td class="yr"><button type="button" data-year="'+y+'">'+(y==='2021-2023'?'2021–2023':y)+'</button></td><td class="num">'+parts.length+'</td><td class="num">'+gb.toFixed(1)+' GB</td><td class="num">'+libs.length+'</td><td class="num">'+nf.toLocaleString()+'</td><td class="ex">'+ex.map(esc).join(' · ')+'</td></tr>';
+      h+='<tr><td class="yr"><button type="button" data-year="'+y+'">'+yearLabel(y)+'</button></td><td class="num">'+parts.length+'</td><td class="num">'+gb.toFixed(1)+' GB</td><td class="num">'+libs.length+'</td><td class="num">'+nf.toLocaleString()+'</td><td class="ex">'+ex.map(esc).join(' · ')+'</td></tr>';
     }
     h+='</tbody></table></div></div>';
-    h+='<ul class="tips"><li><b>Search by what you hear</b>Names are descriptive: try <button type="button" data-q="creak wood">creak wood</button>, <button type="button" data-q="drip cave">drip cave</button>, <button type="button" data-q="footsteps gravel">footsteps gravel</button>.</li><li><b>Narrow with a minus</b><button type="button" data-q="drone -aircraft -quadcopter">drone -aircraft -quadcopter</button> drops the flying kind.</li><li><b>Browse a year</b>Click a year on the left to see every part and what it holds, no search needed.</li></ul>';
+    h+='<ul class="tips">'+t('tips').map(([b,s])=>'<li><b>'+b+'</b>'+tipHtml(s)+'</li>').join('')+'</ul>';
     return h;
   }
 
   // ---- filters UI
   function buildYears(){
-    yearsEl.innerHTML = YEARS.map(y=>{ const n=libByIdx.filter(l=>l[0]===y).length; return '<button type="button" class="year" data-y="'+y+'" aria-pressed="false"><span>'+(y==='2021-2023'?'2021–2023':y)+'</span><span class="n">'+n+' libs</span></button>'; }).join('');
+    yearsEl.innerHTML = YEARS.map(y=>{ const n=libByIdx.filter(l=>l[0]===y).length; return '<button type="button" class="year" data-y="'+y+'" aria-pressed="'+(state.year===y)+'"><span>'+yearLabel(y)+'</span><span class="n">'+n+' '+t('libs')+'</span></button>'; }).join('');
   }
   function buildParts(){
     const parts=Object.keys(zipInfo[state.year]).map(Number);
@@ -350,21 +417,22 @@ const SAMPLES={"2015":["Moscow Ambience","Gore","Metal Plate","Monster Zombie Vo
   }
 
   // ---- events
-  let t; input.addEventListener('input', ()=>{ clearTimeout(t); t=setTimeout(()=>{ state.q=input.value.trim(); writeHash(); run(); }, 120); });
+  let tm; input.addEventListener('input', ()=>{ clearTimeout(tm); tm=setTimeout(()=>{ state.q=input.value.trim(); writeHash(); run(); }, 120); });
   clearBtn.addEventListener('click', ()=>{ input.value=''; state.q=''; writeHash(); run(); input.focus(); });
   yearsEl.addEventListener('click', e=>{ const b=e.target.closest('.year'); if(!b) return; state.year = state.year===b.dataset.y ? null : b.dataset.y; state.part=null; writeHash(); run(); });
   pgrid.addEventListener('click', e=>{ const b=e.target.closest('.part'); if(!b) return; const p=+b.dataset.p; state.part = state.part===p ? null : p; writeHash(); run(); });
   resetBtn.addEventListener('click', ()=>{ state.year=null; state.part=null; writeHash(); run(); });
+  document.querySelector('.lang').addEventListener('click', e=>{ const b=e.target.closest('[data-lang]'); if(!b||b.dataset.lang===L) return; L=b.dataset.lang; try{localStorage.setItem('gdc-lang',L);}catch(x){} applyLang(); writeHash(); run(); });
   results.addEventListener('click', e=>{
     const s=e.target.closest('[data-sort]'); if(s){ state.sort=s.dataset.sort; run(); return; }
     const y=e.target.closest('[data-year]'); if(y){ state.year=y.dataset.year; state.part=null; writeHash(); run(); return; }
     const q=e.target.closest('[data-q]'); if(q){ input.value=q.dataset.q; state.q=q.dataset.q; writeHash(); run(); return; }
     const x=e.target.closest('[data-expand]'); if(x){ const li=+x.dataset.expand; const card=results.querySelector('.lib[data-li="'+li+'"]'); const fl=results._hit.get(li); const ul=card.querySelector('.files'); ul.innerHTML = fl.map(fi=>{const f=files[fi];return '<li><span>'+hl(f[1],results._inc)+'</span><span class="sz">'+f[2].toFixed(1)+' MB</span></li>';}).join(''); return; }
-    const m=e.target.closest('#morelibs'); if(m){ const libs=JSON.parse(results.dataset.libs); const done=results.querySelectorAll('.lib').length; const next=libs.slice(done, done+PAGE_LIBS); m.insertAdjacentHTML('beforebegin', next.map(li=>libCard(li, results._hit.get(li), results._inc)).join('')); const left=libs.length-done-next.length; if(left>0) m.textContent='Show '+left+' more libraries'; else m.remove(); }
+    const m=e.target.closest('#morelibs'); if(m){ const libs=JSON.parse(results.dataset.libs); const done=results.querySelectorAll('.lib').length; const next=libs.slice(done, done+PAGE_LIBS); m.insertAdjacentHTML('beforebegin', next.map(li=>libCard(li, results._hit.get(li), results._inc)).join('')); const left=libs.length-done-next.length; if(left>0) m.textContent=t('more_libs')(left); else m.remove(); }
   });
   window.addEventListener('hashchange', ()=>{ readHash(); run(); });
   document.addEventListener('keydown', e=>{ if(e.key==='/' && document.activeElement!==input){ e.preventDefault(); input.focus(); } });
 
-  buildYears(); readHash(); run();
+  L = detectLang(); readHash(); applyLang(); run();
 })();
 </script>

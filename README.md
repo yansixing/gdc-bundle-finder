@@ -1,5 +1,9 @@
 # GDC Bundle Finder
 
+**English** · [中文](README.zh-CN.md)
+
+**Live: <https://yansixing.github.io/gdc-bundle-finder/>** (English / 中文 toggle in the top-right corner)
+
 Search every audio file in the free Sonniss **#GameAudioGDC** bundles (2015–2024, 73 zip parts, ~190 GB) and see exactly which zip part to download.
 
 **No audio is hosted here.** The site only lists file names and links each library to the official zip on Sonniss's servers. Download the bundles from <https://sonniss.com/gameaudiogdc/> — they are free and royalty-free under the [#GameAudioGDC license](https://sonniss.com/gdc-bundle-license/), which forbids re-uploading the sounds themselves.
