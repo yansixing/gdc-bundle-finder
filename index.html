@@ -180,6 +180,7 @@ mark{background:var(--mark);color:var(--mark-ink);border-radius:2px;padding:0 1p
 .player .time{font-variant-numeric:tabular-nums;font-size:12px;color:var(--ink-2);white-space:nowrap}
 .player .x{border:1px solid var(--line);background:transparent;border-radius:4px;padding:4px 8px;cursor:pointer;color:var(--muted)}
 .player .x:hover{color:var(--ink)}
+.player .save{color:var(--ink);font-weight:600}
 
 /* preview-mode modal */
 .modal{position:fixed;inset:0;z-index:30;background:rgba(10,14,20,.5);display:grid;place-items:center;padding:20px}
@@ -260,6 +261,7 @@ mark{background:var(--mark);color:var(--mark-ink);border-radius:2px;padding:0 1p
       <div class="bar" id="pbar"><b id="pload"></b><i id="pfill"></i></div>
     </div>
     <div class="right">
+      <button type="button" class="x save" id="psave" hidden></button>
       <span class="time" id="ptime">0:00 / 0:00</span>
       <button type="button" class="x" id="pclose" aria-label="Close player">✕</button>
     </div>
@@ -316,7 +318,7 @@ const SAMPLES={"2015":["Moscow Ambience","Gore","Metal Plate","Monster Zombie Vo
       pv_why:'Audio plays directly from Sonniss; nothing is stored here. Requires a current Chrome, Edge, Firefox or Safari.',
       pv_close:'Close',
       p_fetch:mb=>'Loading · '+mb+' MB', p_inflate:'Almost there…', p_decode:'Almost there…', p_ready:(sr,ch,mb)=>sr/1000+' kHz · '+(ch===1?'mono':ch===2?'stereo':ch+' channels')+' · '+mb+' MB',
-      p_err:e=>'This one couldn’t be played. '+e, p_big:mb=>'This is a long one ('+mb+' MB). Load it anyway?',
+      p_save:'Save file', p_err:e=>'This one couldn’t be played. '+e, p_big:mb=>'This is a long one ('+mb+' MB). Load it anyway?',
       foot1:'<strong>All sounds belong to Sonniss and their creators.</strong> This site is only an index: it stores no audio, and listening plays straight from Sonniss. The bundles are free and royalty-free under the <a href="https://sonniss.com/gdc-bundle-license/" target="_blank" rel="noopener">#GameAudioGDC license</a>, which doesn’t allow re-uploading them elsewhere. Download 2015–2024 at <a href="https://sonniss.com/gameaudiogdc/" target="_blank" rel="noopener">sonniss.com/gameaudiogdc</a> and 2026 at <a href="https://gdc.sonniss.com/" target="_blank" rel="noopener">gdc.sonniss.com</a>.',
       foot2:'Covers every bundle from 2015 to 2026. 2021–2023 were released together; there was no 2025 bundle. An independent community project, not affiliated with Sonniss. <a href="https://github.com/yansixing/gdc-bundle-finder" target="_blank" rel="noopener">Source on GitHub</a>.'
     },
@@ -344,7 +346,7 @@ const SAMPLES={"2015":["Moscow Ambience","Gore","Metal Plate","Monster Zombie Vo
       pv_why:'音频直接从 Sonniss 播放，本站不保存。需要较新版本的 Chrome、Edge、Firefox 或 Safari。',
       pv_close:'关闭',
       p_fetch:mb=>'加载中 · '+mb+' MB', p_inflate:'马上好…', p_decode:'马上好…', p_ready:(sr,ch,mb)=>sr/1000+' kHz · '+(ch===1?'单声道':ch===2?'立体声':ch+' 声道')+' · '+mb+' MB',
-      p_err:e=>'这个播放不了。'+e, p_big:mb=>'这个声音比较长（'+mb+' MB），还要加载吗？',
+      p_save:'保存文件', p_err:e=>'这个播放不了。'+e, p_big:mb=>'这个声音比较长（'+mb+' MB），还要加载吗？',
       foot1:'<strong>所有声音的版权属于 Sonniss 和各位创作者。</strong>本站只是一份索引：不存放任何音频，试听也是直接从 Sonniss 播放。音效包免费、免版税，遵循 <a href="https://sonniss.com/gdc-bundle-license/" target="_blank" rel="noopener">#GameAudioGDC 协议</a>，协议不允许把它们转载到别处。2015 到 2024 年在 <a href="https://sonniss.com/gameaudiogdc/" target="_blank" rel="noopener">sonniss.com/gameaudiogdc</a> 下载，2026 年在 <a href="https://gdc.sonniss.com/" target="_blank" rel="noopener">gdc.sonniss.com</a>。',
       foot2:'收录 2015 到 2026 年的全部音效包。2021 到 2023 三年合并发布，2025 年没有发包。社区自发项目，与 Sonniss 无关。<a href="https://github.com/yansixing/gdc-bundle-finder" target="_blank" rel="noopener">源码在 GitHub</a>。'
     }
@@ -539,7 +541,7 @@ const SAMPLES={"2015":["Moscow Ambience","Gore","Metal Plate","Monster Zombie Vo
 
   // ---- player
   const P = { ac:null, fi:null, buf:null, src:null, startAt:0, offset:0, playing:false, loading:null, cache:new Map(), raf:0 };
-  const pl = { box:$('#player'), btn:$('#pbtn'), name:$('#pname'), sub:$('#psub'), bar:$('#pbar'), load:$('#pload'), fill:$('#pfill'), time:$('#ptime'), close:$('#pclose') };
+  const pl = { box:$('#player'), btn:$('#pbtn'), name:$('#pname'), sub:$('#psub'), bar:$('#pbar'), load:$('#pload'), fill:$('#pfill'), time:$('#ptime'), close:$('#pclose'), save:$('#psave') };
   const sleep = ms => new Promise(r=>setTimeout(r,ms));
   async function rfetch(u, range, signal){
     let last='';
@@ -569,10 +571,11 @@ const SAMPLES={"2015":["Moscow Ambience","Gore","Metal Plate","Monster Zombie Vo
     const stream = method===8 ? counted.pipeThrough(new DecompressionStream('deflate-raw')) : counted;
     const raw = await new Response(stream).arrayBuffer();
     pl.load.style.width='100%'; pl.sub.textContent = t('p_decode');
-    const buf = await ctx().decodeAudioData(raw);
+    const buf = await ctx().decodeAudioData(raw.slice(0));
+    const entry = {buf, raw};
     if(P.cache.size>=6) P.cache.delete(P.cache.keys().next().value);
-    P.cache.set(fi, buf);
-    return buf;
+    P.cache.set(fi, entry);
+    return entry;
   }
   function stopSource(){ if(P.src){ try{P.src.onended=null; P.src.stop();}catch(e){} P.src=null; } P.playing=false; cancelAnimationFrame(P.raf); }
   function startAt(offset){
@@ -600,14 +603,15 @@ const SAMPLES={"2015":["Moscow Ambience","Gore","Metal Plate","Monster Zombie Vo
     const f=files[fi];
     if(f[4] > 150*2**20 && !confirm(t('p_big')((f[4]/2**20).toFixed(0)))) return;
     if(P.loading) P.loading.abort();
-    stopSource(); P.fi=fi; P.buf=null; P.offset=0;
+    stopSource(); P.fi=fi; P.buf=null; P.raw=null; P.offset=0; pl.save.hidden=true;
     const ctl=new AbortController(); P.loading=ctl;
     pl.box.hidden=false; document.body.classList.add('has-player');
     pl.name.textContent=f[1]; pl.time.textContent='0:00 / 0:00'; pl.fill.style.width='0%'; pl.btn.innerHTML=SPIN_SVG; pl.btn.dataset.state='loading'; syncPlayButtons();
     try{
-      const buf=await loadBuffer(fi, ctl.signal);
+      const entry=await loadBuffer(fi, ctl.signal);
       if(P.loading!==ctl) return;
-      P.loading=null; P.buf=buf;
+      const buf=entry.buf; P.loading=null; P.buf=buf; P.raw=entry.raw;
+      pl.save.hidden=false; pl.save.textContent=t('p_save');
       pl.sub.textContent=t('p_ready')(buf.sampleRate, buf.numberOfChannels, f[2].toFixed(1));
       startAt(0);
     }catch(e){
@@ -617,7 +621,8 @@ const SAMPLES={"2015":["Moscow Ambience","Gore","Metal Plate","Monster Zombie Vo
   }
   pl.btn.addEventListener('click', ()=>{ if(P.fi==null) return; if(P.loading){ play(P.fi); return; } if(P.playing) pause(); else if(P.buf) startAt(P.offset); });
   pl.bar.addEventListener('click', e=>{ if(!P.buf) return; const r=pl.bar.getBoundingClientRect(); const frac=(e.clientX-r.left)/r.width; startAt(Math.max(0,Math.min(P.buf.duration-0.05, frac*P.buf.duration))); });
-  pl.close.addEventListener('click', ()=>{ if(P.loading){P.loading.abort();P.loading=null;} stopSource(); P.fi=null; P.buf=null; pl.box.hidden=true; document.body.classList.remove('has-player'); syncPlayButtons(); });
+  pl.save.addEventListener('click', ()=>{ if(!P.raw||P.fi==null) return; const name=files[P.fi][1].split('/').pop(); const ext=(name.split('.').pop()||'').toLowerCase(); const mime={wav:'audio/wav',flac:'audio/flac',mp3:'audio/mpeg',aif:'audio/aiff',aiff:'audio/aiff',ogg:'audio/ogg'}[ext]||'application/octet-stream'; const url=URL.createObjectURL(new Blob([P.raw],{type:mime})); const a=document.createElement('a'); a.href=url; a.download=name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url), 10000); });
+  pl.close.addEventListener('click', ()=>{ if(P.loading){P.loading.abort();P.loading=null;} stopSource(); P.fi=null; P.buf=null; P.raw=null; pl.save.hidden=true; pl.box.hidden=true; document.body.classList.remove('has-player'); syncPlayButtons(); });
   document.addEventListener('keydown', e=>{ if(e.code==='Space' && P.fi!=null && document.activeElement!==input && !e.target.closest('button,a')){ e.preventDefault(); pl.btn.click(); } });
 
   // ---- events
